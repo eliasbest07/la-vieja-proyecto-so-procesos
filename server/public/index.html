@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>La Vieja</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container" id="menu">
+    <h1>La Vieja</h1>
+
+    <input type="text" id="nameInput" placeholder="Enter your name" />
+
+    <button id="createRoomBtn">Create Room</button>
+
+    <div class="join-section">
+      <input type="text" id="roomInput" placeholder="Enter room code" maxlength="4" />
+      <button id="joinRoomBtn">Play</button>
+    </div>
+  </div>
+
+  <div class="container hidden" id="waitingRoom">
+    <h2>Room Code: <span id="roomCodeDisplay"></span></h2>
+    <p>You are playing as: <strong id="playerSymbol"></strong></p>
+    <p id="waitingMessage">Waiting for another player...</p>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>
