@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>La Vieja</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -10,20 +10,37 @@
   <div class="container" id="menu">
     <h1>La Vieja</h1>
 
-    <input type="text" id="nameInput" placeholder="Enter your name" />
+    <input type="text" id="nameInput" placeholder="Escribe tu nombre" />
 
-    <button id="createRoomBtn">Create Room</button>
+    <button id="createRoomBtn">Crear Sala</button>
 
     <div class="join-section">
-      <input type="text" id="roomInput" placeholder="Enter room code" maxlength="4" />
-      <button id="joinRoomBtn">Play</button>
+      <input type="text" id="roomInput" placeholder="Código de sala" maxlength="5" />
+      <button id="joinRoomBtn">Jugar</button>
     </div>
   </div>
 
   <div class="container hidden" id="waitingRoom">
-    <h2>Room Code: <span id="roomCodeDisplay"></span></h2>
-    <p>You are playing as: <strong id="playerSymbol"></strong></p>
-    <p id="waitingMessage">Waiting for another player...</p>
+    <h2>Código de Sala: <span id="roomCodeDisplay"></span></h2>
+    <p>Juegas como: <strong id="playerSymbol"></strong></p>
+    <p id="waitingMessage">Esperando a otro jugador...</p>
+  </div>
+
+  <div class="container hidden" id="gameRoom">
+    <h2>Sala: <span id="gameRoomCode"></span></h2>
+    <p>Jugando como: <strong id="yourSymbol"></strong></p>
+    <p id="turnInfo">Turno</p>
+    <div id="board" class="board">
+      <div class="cell" data-index="0">&nbsp;</div>
+      <div class="cell" data-index="1">&nbsp;</div>
+      <div class="cell" data-index="2">&nbsp;</div>
+      <div class="cell" data-index="3">&nbsp;</div>
+      <div class="cell" data-index="4">&nbsp;</div>
+      <div class="cell" data-index="5">&nbsp;</div>
+      <div class="cell" data-index="6">&nbsp;</div>
+      <div class="cell" data-index="7">&nbsp;</div>
+      <div class="cell" data-index="8">&nbsp;</div>
+    </div>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
