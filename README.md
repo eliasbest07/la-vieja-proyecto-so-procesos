@@ -111,6 +111,6 @@ README.md
 
 ## 🙌 Autor
 
-Desarrollado por Elias Montilla como parte del segundo proyecto para la materia Sistemas Operaticos de la Universidad de los Andes Merida - Venezuekla y asi aprender comunicación en tiempo real, programación multiproceso y diseño de juegos simples.
+Desarrollado por Elias Montilla como parte del segundo proyecto para la materia Sistemas Operaticos profesor Dimitrios Mandamadiotis de la Universidad de los Andes Merida - Venezuela y asi aprender comunicación en tiempo real, programación multiproceso y diseño de juegos simples.
 
 ---
