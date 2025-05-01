@@ -100,6 +100,11 @@ README.md
 
 ## 📸 Captura 
 
+<img width="738" alt="image" src="https://github.com/user-attachments/assets/d35fca54-e348-4f52-9b59-c8e7f4ccda3a" />
+<img width="690" alt="image" src="https://github.com/user-attachments/assets/f39fccc9-3645-4e51-9b76-f1b787ae5f12" />
+<img width="846" alt="image" src="https://github.com/user-attachments/assets/aa8874ba-eecc-4c14-b97e-06c484653068" />
+<img width="846" alt="image" src="https://github.com/user-attachments/assets/56244d6b-d13f-4885-8c47-4b65356bf1ff" />
+<img width="1154" alt="image" src="https://github.com/user-attachments/assets/7ccae150-8912-42a4-abcc-d979fe79f288" />
 
 
 ---
