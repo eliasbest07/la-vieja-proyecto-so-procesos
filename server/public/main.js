@@ -1,4 +1,4 @@
-const socket = io("http://localhost:3000");
+const socket = io("http://localhost:3001");
 const menu = document.getElementById("menu");
 const waitingRoom = document.getElementById("waitingRoom");
 const roomCodeDisplay = document.getElementById("roomCodeDisplay");
@@ -13,12 +13,17 @@ const cells = document.querySelectorAll(".cell");
 let miFicha = '';
 let nombreSala = '';
 let esMiTurno = false;
+let miNombre = '';
+let nombreOponente = '';
+let tiempo = 0;
+let timerInterval;
 
 document.getElementById("createRoomBtn").addEventListener("click", () => {
   let nombre = document.getElementById("nameInput").value.trim();
   if (!nombre) {
     nombre = "No escribi nombre XD";
   }
+  miNombre = nombre;
   const sala = generarCodigoSalaUnico();
   socket.emit("crear-sala", { nombreSala: sala, nombreJugador: nombre });
 });
@@ -46,7 +51,7 @@ socket.on("sala-unida", ({ nombreSala: sala, ficha }) => {
   yourSymbol.textContent = ficha;
 });
 
-socket.on('inicio-juego', ({ mensaje, turnoActual }) => {
+socket.on('inicio-juego', ({ _, turnoActual, jugador1, jugador2 }) => {
   waitingRoom.classList.add("hidden");
   gameRoom.classList.remove("hidden");
   gameRoomCode.textContent = nombreSala;
@@ -54,6 +59,17 @@ socket.on('inicio-juego', ({ mensaje, turnoActual }) => {
   esMiTurno = (turnoActual === miFicha);
   actualizarTurno();
   limpiarTablero();
+  document.getElementById("miNombre").textContent = miNombre;
+  if (miNombre === jugador1) {
+    document.getElementById("miNombre").textContent = jugador1;
+    document.getElementById("nombreOponente").textContent = jugador2 || "Esperando...";
+  } else {
+    document.getElementById("miNombre").textContent = jugador2;
+    document.getElementById("nombreOponente").textContent = jugador1 || "Esperando...";
+  }
+  nombreOponente = (miNombre === jugador1) ? jugador2 : jugador1;
+  document.getElementById("nombreOponente").textContent = nombreOponente;
+  iniciarContador();
 });
 
 socket.on('jugada-realizada', ({ tablero, turnoActual }) => {
@@ -65,7 +81,7 @@ socket.on('jugada-realizada', ({ tablero, turnoActual }) => {
 socket.on('fin-juego', ({ resultado, tablero }) => {
   actualizarTablero(tablero);
   setTimeout(() => {
-    alert(resultado);
+    alert(`${resultado}\nTiempo: ${document.getElementById("tiempoJuego").textContent}`);
     location.reload(); // Recargar página para volver al menú
   }, 500);
 });
@@ -81,10 +97,16 @@ function mostrarSala(sala, ficha) {
   playerSymbolDisplay.textContent = ficha;
   nombreSala = sala;
   miFicha = ficha;
+  nombreSala = sala;
+  miFicha = ficha;
+
 }
 
 function actualizarTurno() {
   turnInfo.textContent = esMiTurno ? "Tu turno" : "Turno del oponente";
+  const turnoBox = document.getElementById("turnInfo");
+  turnoBox.classList.toggle("turno-jugador", esMiTurno);
+  turnoBox.classList.toggle("turno-oponente", !esMiTurno);
 }
 
 function limpiarTablero() {
@@ -121,4 +143,15 @@ function generarCodigoSalaUnico() {
   ).join('');
   
   return codigo;
+}
+
+function iniciarContador() {
+  tiempo = 0;
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    tiempo++;
+    const minutos = String(Math.floor(tiempo / 60)).padStart(2, '0');
+    const segundos = String(tiempo % 60).padStart(2, '0');
+    document.getElementById("tiempoJuego").textContent = `${minutos}:${segundos}`;
+  }, 1000);
 }

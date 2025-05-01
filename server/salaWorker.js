@@ -78,24 +78,25 @@ function procesarJugada(index) {
 
 // Mensajes que recibe el worker
 parentPort.on('message', (msg) => {
-  if (msg.type === 'jugador-listo') {
+   if (msg.type === 'actualizar-jugador2') {
+    jugadoresInfo.jugador2.nombre = msg.data.nombre;
     jugadoresListos++;
     if (jugadoresListos === 2) {
-      // Cuando los 2 jugadores están listos, empezar juego
       parentPort.postMessage({
         type: 'broadcast',
         event: 'inicio-juego',
         data: {
           mensaje: '¡Empieza el juego!',
-          turnoActual
+          turnoActual,
+          jugador1: jugadoresInfo.jugador1.nombre,
+          jugador2: jugadoresInfo.jugador2.nombre
         }
       });
     }
   }
   
-  if (msg.type === 'actualizar-jugador2') {
-    // Actualizar solo el nombre, la ficha ya se asignó al crear el worker
-    jugadoresInfo.jugador2.nombre = msg.data.nombre;
+  if (msg.type === 'jugador-listo') {
+    jugadoresListos++;
   }
   
   // Permitir actualizar fichas si es necesario

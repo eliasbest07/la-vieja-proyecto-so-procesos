@@ -60,3 +60,29 @@ body {
     pointer-events: none;
     background: #cccccc;
   }
+  .player-info {
+    margin: 1rem 0;
+  }
+  
+  .turn-box {
+    padding: 0.7rem 1.2rem;
+    font-weight: bold;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    display: inline-block;
+    color: white;
+    background-color: gray;
+    transition: background-color 0.3s ease;
+  }
+  
+  .turn-box.turno-jugador {
+    background-color: #4caf50; 
+  }
+  
+  .turn-box.turno-oponente {
+    background-color: #888; 
+  }
+  
+  #tiempoJuego {
+    font-weight: bold;
+  }
