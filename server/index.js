@@ -16,9 +16,13 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 app.use(express.static(path.join(__dirname, './public')));
 
-const workers = new Map(); // nombreSala -> worker
+const workers = new Map(); // nombreSala -> worker (La Vieja)
 const socketsPorSala = new Map(); // nombreSala -> [socket1, socket2]
 const fichasPorSala = new Map(); // nombreSala -> { jugador1: 'X', jugador2: 'O' }
+
+// Mapas para Bingo
+const bingoWorkers = new Map();
+const bingoSocketsPorSala = new Map();
 
 // Crear worker por sala
 function crearSalaWorker(nombreSala, jugador1, fichaJugador1, fichaJugador2) {
@@ -52,6 +56,41 @@ function crearSalaWorker(nombreSala, jugador1, fichaJugador1, fichaJugador2) {
   });
   
   worker.on('error', (err) => console.error('Worker error:', err));
+}
+
+// Crear worker de Bingo por sala
+function crearSalaBingoWorker(nombreSala, jugador1) {
+  const worker = new Worker(path.resolve('./bingoWorker.js'), {
+    workerData: {
+      nombreSala,
+      jugador1
+    }
+  });
+
+  bingoWorkers.set(nombreSala, worker);
+  bingoSocketsPorSala.set(nombreSala, []);
+
+  worker.on('message', (msg) => {
+    const sockets = bingoSocketsPorSala.get(nombreSala);
+    if (!sockets) return;
+
+    if (msg.type === 'broadcast') {
+      sockets.forEach(sock => sock.emit(msg.event, msg.data));
+    }
+
+    if (msg.type === 'privado') {
+      const target = sockets[msg.jugador - 1];
+      target?.emit(msg.event, msg.data);
+    }
+
+    if (msg.type === 'cerrar') {
+      bingoWorkers.get(nombreSala)?.terminate();
+      bingoWorkers.delete(nombreSala);
+      bingoSocketsPorSala.delete(nombreSala);
+    }
+  });
+
+  worker.on('error', (err) => console.error('Bingo worker error:', err));
 }
 
 // Escuchar conexiones de clientes
@@ -140,10 +179,47 @@ io.on('connection', (socket) => {
       worker.postMessage({ type: 'jugada', index });
     }
   });
+
+  // --- Bingo events ---
+  socket.on('crear-sala-bingo', ({ nombreSala, nombreJugador }) => {
+    if (bingoWorkers.has(nombreSala)) {
+      socket.emit('error', { mensaje: 'Esta sala ya existe, intenta con otro código.' });
+      return;
+    }
+
+    crearSalaBingoWorker(nombreSala, nombreJugador);
+    bingoSocketsPorSala.get(nombreSala).push(socket);
+    socket.join(nombreSala);
+
+    socket.emit('bingo-sala-creada', { nombreSala });
+  });
+
+  socket.on('unirse-sala-bingo', ({ nombreSala, nombreJugador }) => {
+    const worker = bingoWorkers.get(nombreSala);
+    const sockets = bingoSocketsPorSala.get(nombreSala);
+
+    if (!worker || !sockets) {
+      socket.emit('error', { mensaje: 'Esta sala no existe.' });
+      return;
+    }
+
+    if (sockets.length >= 2) {
+      socket.emit('error', { mensaje: 'Sala llena, ya hay dos jugadores.' });
+      return;
+    }
+
+    worker.postMessage({
+      type: 'actualizar-jugador2',
+      data: { nombre: nombreJugador }
+    });
+
+    sockets.push(socket);
+    socket.join(nombreSala);
+  });
   
   socket.on('disconnect', () => {
     console.log('Cliente desconectado:', socket.id);
-    
+
     // Buscar y manejar la desconexión del jugador
     for (const [nombreSala, sockets] of socketsPorSala.entries()) {
       const index = sockets.indexOf(socket);
@@ -167,6 +243,29 @@ io.on('connection', (socket) => {
           fichasPorSala.delete(nombreSala);
         }
         
+        break;
+      }
+    }
+
+    for (const [nombreSala, sockets] of bingoSocketsPorSala.entries()) {
+      const index = sockets.indexOf(socket);
+      if (index !== -1) {
+        sockets.splice(index, 1);
+
+        const worker = bingoWorkers.get(nombreSala);
+        if (worker) {
+          worker.postMessage({
+            type: 'jugador-desconectado',
+            index
+          });
+        }
+
+        if (sockets.length === 0) {
+          bingoWorkers.get(nombreSala)?.terminate();
+          bingoWorkers.delete(nombreSala);
+          bingoSocketsPorSala.delete(nombreSala);
+        }
+
         break;
       }
     }
